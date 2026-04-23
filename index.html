@@ -821,7 +821,11 @@ window.addEventListener('scroll',()=>{let current='';sections.forEach(section=>{
     }
 
     draw();
-    window.addEventListener('resize', draw, { passive: true });
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(draw, 300);
+    }, { passive: true });
   })();
   </script>
 </body>

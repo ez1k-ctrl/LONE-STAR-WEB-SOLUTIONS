@@ -771,80 +771,57 @@ const navAnchors=document.querySelectorAll('.nav-links a:not(.btn)');
 window.addEventListener('scroll',()=>{let current='';sections.forEach(section=>{if(window.scrollY>=section.offsetTop-120){current=section.getAttribute('id');}});navAnchors.forEach(a=>{a.style.color=a.getAttribute('href')==='#'+current?'var(--gold)':'';});},{passive:true});
 })();
 
-  // ── Twinkling star field ──
+  // ── Static star field ──
   (function(){
     const canvas = document.getElementById('starCanvas');
     const ctx = canvas.getContext('2d');
-    let stars = [];
     const STAR_COUNT = 180;
     const GOLD = [201, 150, 58];
     const WHITE = [255, 255, 255];
 
-    function resize() {
-      canvas.width  = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    }
-
     function rand(min, max) { return Math.random() * (max - min) + min; }
 
-    function initStars() {
-      stars = [];
+    function draw() {
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let i = 0; i < STAR_COUNT; i++) {
         const isGold = Math.random() < 0.08;
-        stars.push({
-          x: rand(0, canvas.width),
-          y: rand(0, canvas.height),
-          r: rand(0.4, isGold ? 2.2 : 1.6),
-          alpha: rand(0.2, 1),
-          delta: rand(0.003, 0.018) * (Math.random() < 0.5 ? 1 : -1),
-          speed: rand(0.04, 0.18),
-          phase: rand(0, Math.PI * 2),
-          color: isGold ? GOLD : WHITE,
-          twinkleAmp: rand(0.6, 1.0),
-        });
-      }
-    }
-
-    function draw(ts) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const t = ts * 0.001;
-      stars.forEach(s => {
-        const a = s.twinkleAmp * Math.sin(t * (s.speed * 20) + s.phase) + (1 - s.twinkleAmp * 0.5);
-        const alpha = Math.max(0, Math.min(1, a));
-        const [r, g, b] = s.color;
+        const [r, g, b] = isGold ? GOLD : WHITE;
+        const x = rand(0, canvas.width);
+        const y = rand(0, canvas.height);
+        const radius = rand(0.4, isGold ? 2.2 : 1.6);
+        const alpha = rand(0.2, 1);
         // Glow
-        if (s.r > 1) {
-          const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 4);
+        if (radius > 1) {
+          const grad = ctx.createRadialGradient(x, y, 0, x, y, radius * 4);
           grad.addColorStop(0, `rgba(${r},${g},${b},${alpha * 0.5})`);
           grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
           ctx.beginPath();
-          ctx.arc(s.x, s.y, s.r * 4, 0, Math.PI * 2);
+          ctx.arc(x, y, radius * 4, 0, Math.PI * 2);
           ctx.fillStyle = grad;
           ctx.fill();
         }
         // Core dot
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
         ctx.fill();
         // Cross sparkle on larger stars
-        if (s.r > 1.2 && alpha > 0.5) {
+        if (radius > 1.2 && alpha > 0.5) {
           ctx.strokeStyle = `rgba(${r},${g},${b},${alpha * 0.35})`;
           ctx.lineWidth = 0.6;
-          const len = s.r * 5;
+          const len = radius * 5;
           ctx.beginPath();
-          ctx.moveTo(s.x - len, s.y); ctx.lineTo(s.x + len, s.y);
-          ctx.moveTo(s.x, s.y - len); ctx.lineTo(s.x, s.y + len);
+          ctx.moveTo(x - len, y); ctx.lineTo(x + len, y);
+          ctx.moveTo(x, y - len); ctx.lineTo(x, y + len);
           ctx.stroke();
         }
-      });
-      requestAnimationFrame(draw);
+      }
     }
 
-    resize();
-    initStars();
-    requestAnimationFrame(draw);
-    window.addEventListener('resize', () => { resize(); initStars(); }, { passive: true });
+    draw();
+    window.addEventListener('resize', draw, { passive: true });
   })();
   </script>
 </body>
